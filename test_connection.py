@@ -6,14 +6,24 @@ load_dotenv()
 
 token = os.environ["BOT_TOKEN"]
 
-url = f"https://api.telegram.org/bot{token}/getMe"
+try:
+    response = httpx.get(
+        f"https://api.telegram.org/bot{token}/getMe",
+        timeout=30
+    )
 
-print("Testing Telegram Bot API...", flush=True)
+    print("HTTP status:", response.status_code, flush=True)
 
-response = httpx.get(
-    f"https://api.telegram.org/bot{token}/getMe",
-    timeout=30
-)
+    data = response.json()
 
-print("HTTP status:", response.status_code)
-print("API success:", response.json().get("ok"))
+    print("Description:", data.get("description"), flush=True)
+    print(
+        "Retry after:",
+        data.get("parameters", {}).get("retry_after"),
+        flush=True
+    )
+
+except httpx.RequestError as error:
+    print("Network error:", repr(error), flush=True)
+except ValueError:
+    print("Unexpected non-JSON response", flush=True)
