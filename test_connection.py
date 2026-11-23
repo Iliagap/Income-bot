@@ -1,35 +1,20 @@
-
-import socket
+import os
 import httpx
+from dotenv import load_dotenv
 
-host = "api.telegram.org"
+load_dotenv()
 
-print("DNS results:", flush=True)
+token = os.environ["BOT_TOKEN"]
 
-try:
-    for result in socket.getaddrinfo(
-        host, 443, type=socket.SOCK_STREAM
-    ):
-        print(result[4], flush=True)
-except Exception as e:
-    print("DNS error:", repr(e), flush=True)
+url = f"https://api.telegram.org/bot{token}/getMe"
 
-print("\nTesting HTTPS...", flush=True)
+print("Testing Telegram Bot API...", flush=True)
 
 try:
-    with httpx.Client(timeout=15) as client:
-        response = client.get(
-            "https://api.telegram.org"
-        )
-        print(
-            "HTTP status:",
-            response.status_code,
-            flush=True
-        )
+    response = httpx.get(url, timeout=30)
+
+    print("HTTP status:", response.status_code, flush=True)
+    print("Response:", response.text, flush=True)
+
 except Exception as e:
-    print(
-        "Connection error:",
-        type(e).__name__,
-        repr(e),
-        flush=True
-    )
+    print("Error:", type(e).__name__, str(e), flush=True)
